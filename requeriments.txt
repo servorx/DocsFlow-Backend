@@ -1,0 +1,18 @@
+# Framework principal
+fastapi
+uvicorn[standard]
+
+# ORM y conexión a MySQL
+sqlalchemy
+pymysql
+sqlmodel
+
+# Seguridad y autenticación
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Validación de datos
+pydantic
+
+# Manejo de formularios y uploads
+python-multipart
