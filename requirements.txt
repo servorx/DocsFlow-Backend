@@ -16,3 +16,6 @@ pydantic
 
 # Manejo de formularios y uploads
 python-multipart
+
+# Extracción de tablas de PDF
+tabula-py
