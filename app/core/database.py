@@ -13,7 +13,7 @@ DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB
 engine = create_engine(DATABASE_URL, echo=True)
 
 # Import all models to ensure they are registered
-from app.models import User, Department, ExtratedData, KeyData, ResetPasswordToken
+from app.models import User, Department, ExtratedData, KeyData, ResetPasswordToken, LoginAttempt
 
 # Create tables
 SQLModel.metadata.create_all(engine)

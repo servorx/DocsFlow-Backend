@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
-from datetime import timedelta
+from datetime import timedelta, datetime
 from jose import jwt, JWTError
 
 from ...auth.validar_password import hash_password, verify_password
 from ...models.users.user import UserCreate, User
+from ...models.models import LoginAttempt
 from ...core.database import get_session
 from ...auth.jwt_hand import create_access_token, SECRET_KEY, ALGORITHM
 
@@ -40,8 +41,35 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not form_data.username or not form_data.password:
         raise HTTPException(status_code=400, detail="Username y password requeridos")
     user = db.exec(select(User).where(User.email == form_data.username)).first()
-    if not user or not verify_password(form_data.password, user.password):
+    if not user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+    # Verificar intentos de login
+    attempt = db.exec(select(LoginAttempt).where(LoginAttempt.email == form_data.username)).first()
+    if not attempt:
+        attempt = LoginAttempt(email=form_data.username)
+        db.add(attempt)
+        db.commit()
+        db.refresh(attempt)
+
+    if attempt.is_blocked:
+        raise HTTPException(status_code=403, detail="Cuenta bloqueada por múltiples intentos fallidos")
+
+    if not verify_password(form_data.password, user.password):
+        if user.role == "operator":
+            attempt.attempts += 1
+            attempt.last_attempt = datetime.utcnow()
+            if attempt.attempts >= 5:
+                attempt.is_blocked = True
+            db.add(attempt)
+            db.commit()
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+    # Login exitoso, resetear intentos
+    attempt.attempts = 0
+    attempt.is_blocked = False
+    db.add(attempt)
+    db.commit()
 
     token = create_access_token(data={"sub": user.email, "role": user.role})
     return {"access_token": token, "token_type": "bearer"}
