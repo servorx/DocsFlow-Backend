@@ -1,17 +1,15 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import JSONResponse
 import os
 import shutil
 import uuid
+from ..auth.dependencias import get_current_user
 
 upload_router = APIRouter()
 
 
 @upload_router.post("/upload/")
-async def upload_file(file: UploadFile = File(...)):
-    """
-    Endpoint para subir archivos del usuario
-    """
+async def upload_file(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
     if not file:
         raise HTTPException(status_code=400, detail="No se ha proporcionado ningún archivo")
     
