@@ -1,4 +1,4 @@
-INSERT INTO departamentos(nombre_departamento) VALUES
+INSERT INTO departments(name_department) VALUES
 ('Finanzas'),
 ('Compras'),
 ('Talento Humano'),
@@ -6,4 +6,5 @@ INSERT INTO departamentos(nombre_departamento) VALUES
 ('Ventas'),
 ('Logistica'),
 ('Tecnologia'),
-('Marketing');
+('Marketing'),
+('Administracion');

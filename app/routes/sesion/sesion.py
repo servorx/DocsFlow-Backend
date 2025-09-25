@@ -21,27 +21,31 @@ def register(user: UserCreate, db: Session = Depends(get_session)):
     password_hash = hash_password(user.password)
 
     new_user = User(
-        nombre=user.nombre,
+        name=user.name,
         email=user.email,
-        contrasenia_hash=password_hash,
-        rol=user.rol
+        password=password_hash,
+        role=user.role,
+        id_department=user.id_department
     )
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    return {"msg": "Usuario registrado con éxito", "user_id": new_user.id}
+    return {"msg": "Usuario registrado con éxito", "user_id": new_user.id_user}
 
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
+    if not form_data.username or not form_data.password:
+        raise HTTPException(status_code=400, detail="Username y password requeridos")
     user = db.exec(select(User).where(User.email == form_data.username)).first()
-    if not user or not verify_password(form_data.password, user.contrasenia_hash):
+    if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-    token = create_access_token(data={"sub": user.email, "rol": user.rol})
+    token = create_access_token(data={"sub": user.email, "role": user.role})
     return {"access_token": token, "token_type": "bearer"}
+
 
 @router.post("/forgot-password")
 def forgot_password(email: str, db: Session = Depends(get_session)):
@@ -60,8 +64,10 @@ def forgot_password(email: str, db: Session = Depends(get_session)):
 @router.post("/reset-password")
 def reset_password(token: str, new_password: str, db: Session = Depends(get_session)):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY or "", algorithms=[ALGORITHM or "HS256"])
         email: str = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=400, detail="Token inválido")
     except JWTError:
         raise HTTPException(status_code=400, detail="Token inválido o expirado")
 
@@ -69,7 +75,7 @@ def reset_password(token: str, new_password: str, db: Session = Depends(get_sess
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    user.contrasenia_hash = hash_password(new_password)
+    user.password = hash_password(new_password)
     db.add(user)
     db.commit()
     db.refresh(user)

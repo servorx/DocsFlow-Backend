@@ -4,20 +4,23 @@ from pydantic import BaseModel
 
 
 class User(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    nombre: str
+    __tablename__ = "users"
+    id_user: Optional[int] = Field(default=None, primary_key=True)
+    name: str
     email: str
-    contrasenia_hash: str
-    rol: str = "user"  
+    password: str
+    role: str = "operator"
+    id_department: int
 
 class UserCreate(SQLModel):
-    nombre: str
+    name: str
     email: str
-    password: str 
-    rol: str = "user"
+    password: str
+    role: str = "operator"
+    id_department: int = 9
 
 class UserRead(SQLModel):
-    nombre: str
+    name: str
     email: str
-    rol: str 
+    role: str
 
