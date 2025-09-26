@@ -1,13 +1,28 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+import uuid
+from pydantic import BaseModel, EmailStr
 
 
-class ForgotPasswordRequest (SQLModel, table=True):
-    __tablename__ = "forgot_password_tokens"
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="users.id", index=True)
-    token: str = Field(unique=True, index=True)
-    expires_at: datetime
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ResetPasswordRequest(SQLModel):
+    token: str
+    new_password: str
+
+
+class ResetPasswordToken(SQLModel, table=True):
+    __tablename__ = "reset_password_tokens"
+
+    id_token: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int
+    token: str
+
+    @classmethod
+    def generate_token(cls, user_id: int):
+        # Generar token único usando uuid
+        token = uuid.uuid4().hex
+        return cls(user_id=user_id, token=token)

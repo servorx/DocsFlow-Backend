@@ -9,6 +9,13 @@ from ...models.users.user import UserCreate, User
 from ...models.models import LoginAttempt
 from ...core.database import get_session
 from ...auth.jwt_hand import create_access_token, SECRET_KEY, ALGORITHM
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter(tags=["Auth"])
 
@@ -75,20 +82,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.post("/forgot-password")
-def forgot_password(email: str, db: Session = Depends(get_session)):
-    user = db.exec(select(User).where(User.email == email)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    reset_token = create_access_token(
-        {"sub": user.email},
-        expires_delta=timedelta(minutes=15)  
-    )
-    return {
-        "msg": "Se enviaron instrucciones al correo",
-        "reset_token_demo": reset_token  
-    }
 @router.post("/reset-password")
 def reset_password(token: str, new_password: str, db: Session = Depends(get_session)):
     try:

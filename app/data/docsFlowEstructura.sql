@@ -40,4 +40,12 @@ CREATE TABLE `reset_password_tokens` (
   CONSTRAINT `fk_reset_tokens_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE `login_attempts` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL UNIQUE,
+  `attempts` int NOT NULL DEFAULT 0,
+  `is_blocked` bool NOT NULL DEFAULT false,
+  `last_attempt` datetime NOT NULL
+);
+
 

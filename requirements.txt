@@ -19,3 +19,9 @@ python-multipart
 
 # Extracción de tablas de PDF
 tabula-py
+
+# Variables de entorno
+python-dotenv
+
+# Envío de emails
+fastapi-mail
