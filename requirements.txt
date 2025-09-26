@@ -19,6 +19,7 @@ python-multipart
 
 # Extracción de tablas de PDF
 tabula-py
+pdfplumber
 
 # Variables de entorno
 python-dotenv

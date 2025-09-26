@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS coworking;
-USE coworking;
+CREATE DATABASE IF NOT EXISTS docsflow;
+USE docsflow;
 
 CREATE TABLE `departments` (
   `id_department` int PRIMARY KEY AUTO_INCREMENT,
@@ -10,7 +10,7 @@ CREATE TABLE `users` (
   `id_user` int PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL UNIQUE,
-  `password` varchar(255) NOT NULL,
+  `password` text NOT NULL,
   `role` enum('admin','operator') NOT NULL DEFAULT 'operator',
   `id_department` int NOT NULL,
   CONSTRAINT `fk_users_department` FOREIGN KEY (`id_department`) REFERENCES `departments` (`id_department`) ON DELETE RESTRICT ON UPDATE CASCADE

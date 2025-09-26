@@ -8,7 +8,8 @@ class User(SQLModel, table=True):
     id_user: Optional[int] = Field(default=None, primary_key=True)
     name: str
     email: str
-    password: str
+    # hacer que el password pueda recibir un hash de password
+    password: str 
     role: str = "operator"
     id_department: int
 
@@ -17,7 +18,7 @@ class UserCreate(SQLModel):
     email: str
     password: str
     role: str = "operator"
-    id_department: int = 9
+    id_department: int 
 
 class UserRead(SQLModel):
     name: str
