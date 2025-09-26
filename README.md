@@ -1,107 +1,149 @@
-# 🏢 Gestor de Reservas de Salas de Coworking (Python Edition)
+# 📌 DocsFlow Backend
 
-API REST construida con **FastAPI + MySQL** para la gestión de usuarios, salas de coworking y reservas con autenticación segura y validaciones de negocio.
-
----
-
-## 🎯 Objetivo General
-
-- Registro e inicio de sesión de usuarios con **JWT**  
-- Creación y administración de **salas de coworking**  
-- Sistema de **reservas con validaciones de horarios**  
-- Generación de **reportes simples**  
+Backend desarrollado con **FastAPI** y **MySQL**, que gestiona usuarios, autenticación, departamentos y carga de datos.  
+Este servicio está diseñado para conectarse con un frontend en **React + TypeScript + Tailwind**.
 
 ---
 
-## 🛠️ Tecnologías Sugeridas
-
-- **Lenguaje:** Python 3.12.6  
-- **Framework Backend:** FastAPI  
-- **Base de Datos:** MySQL (local con XAMPP)  
-- **Autenticación:** JWT (`python-jose`)  
-- **Documentación:** Swagger (auto-generado en `/docs`)  
+## 🚀 Tecnologías utilizadas
+- **FastAPI** (framework principal)
+- **SQLAlchemy / SQLModel** (ORM y conexión a MySQL)
+- **PyMySQL** (driver de conexión a MySQL)
+- **Pydantic** (validación de datos)
+- **Passlib + python-jose** (autenticación con JWT y seguridad de contraseñas)
+- **python-multipart** (manejo de formularios y uploads)
+- **Tabula-py / pdfplumber** (procesamiento de PDFs)
+- **CORS Middleware** (conexión segura entre frontend y backend)
 
 ---
 
-## 📂 Estructura del Proyecto
+## ⚙️ Instalación y configuración
+
+### 1️⃣ Clonar el repositorio
+```bash
+git clone https://github.com/tuusuario/DocsFlow-Backend.git
+cd DocsFlow-Backend
+```
+
+### 2️⃣ Crear un entorno virtual
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+### 3️⃣ Instalar dependencias
+```bash
+pip install -r requirements.txt
+```
+
+### 4️⃣ LEvantar el servidor con uvicorn
+```bash
+uvicorn app.main:app --reload
+```
+
+### 5️⃣ Crear la base de datos
+```bash
+mysql -u root -p
+# ejecutar el archivo docsFlowData.sql y docsFlowEstructura.sql
+```
+
+## 📂 Estructura del proyecto
+Generated on: 9/26/2025, 5:13:17 PM
+Root path: `/home/angel/Desktop/campusdev/proyectos/DocsFlow-Backend`
 
 ```
 ├── .git/ 🚫 (auto-hidden)
-├── .venv/ 🚫 (auto-hidden)
 ├── app/
+│   ├── __pycache__/ 🚫 (auto-hidden)
 │   ├── auth/
-│   │   └── auth.py
+│   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   ├── dependencias.py
+│   │   ├── jwt_hand.py
+│   │   └── validar_password.py
 │   ├── controllers/
-│   │   ├── users/
-│   │   │   └── UsersController.py
+│   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   ├── user/
+│   │   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   │   └── users_controllers.py
+│   │   └── __init__.py
+│   ├── core/
+│   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   ├── .gitkeep
 │   │   └── database.py
 │   ├── data/
 │   │   ├── docsFlowData.sql
 │   │   └── docsFlowEstructura.sql
 │   ├── models/
-│   │   ├── reservation/
-│   │   │   └── ReservationModel.py
-│   │   ├── room/
-│   │   │   └── RoomModel.py
-│   │   ├── user/
-│   │   │   └── UsersModel.py
-│   │   └── schemas.py
+│   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   ├── users/
+│   │   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   │   └── user.py
+│   │   ├── __init__.py
+│   │   ├── departments.py
+│   │   ├── extrated_data.py
+│   │   ├── forgot_password.py
+│   │   ├── key_data.py
+│   │   ├── models.py
+│   │   └── reset_password_tokens.py
 │   ├── routes/
-│   │   ├── ReservationRoutes.py
-│   │   └── RoomsRoutes.py
+│   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   ├── department/
+│   │   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   │   └── departments.py
+│   │   ├── sesion/
+│   │   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   │   └── sesion.py
+│   │   ├── user/
+│   │   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   │   └── users.py
+│   │   ├── verification/
+│   │   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   │   └── verificar_administracion.py
+│   │   ├── __init__.py
+│   │   ├── data_upload.py
+│   │   └── forgot_password.py
+│   ├── test/
+│   │   └── Alejandro Escobar J1 Entrevista de Ingreso 2025.pdf
+│   ├── utils/
+│   │   ├── __pycache__/ 🚫 (auto-hidden)
+│   │   ├── email.py
+│   │   └── pdf_table_extractor.py
 │   └── main.py
+├── venv/ 🚫 (auto-hidden)
 ├── .env 🚫 (auto-hidden)
 ├── .gitignore
 ├── README.md
-├── comands.md
-├── requeriments.md
-└── requeriments.txt
+└── requirements.txt
 ```
 
 ---
 *Generated by FileTree Pro Extension*
----
 
-## 📦 Dependencias Principales
+## 🔑 Endpoints principales
+### Autenticación (/auth)
 
-Se deben instalar con `pip` o `apt`, para hacerlo desde la consola de este proyecto se ejectua este comando:
+- POST /auth/register → Registrar un nuevo usuario
 
-```bash
-pip install -r requirements.txt
-```
+- POST /auth/login → Iniciar sesión (retorna JWT)
 
-## 🚀 Ejecución del Proyecto
-Clonar repositorio
-```bash
-git clone <link-al-repositorio>
-cd python-apirest
-code .  
-```
+- POST /auth/reset-password → Resetear contraseña
 
-Inicia el servidor MySQL desde XAMPP
-```bash
-sudo /opt/lampp/lampp start
-```
-Crea la base de datos coworking_db.
+### Usuarios (/users)
 
-Ejecuta los scripts en app/data/ para crear tablas y datos de prueba
+- GET /users/ → Listar todos los usuarios
 
-Levanta el servidor con:
-```bash
-uvicorn app.main:app --reload
-```
-Accede a la documentación interactiva en:
-👉 http://127.0.0.1:8000/docs
+- GET /users/{id} → Obtener usuario por ID
 
+- PUT /users/{id} → Actualizar usuario
 
-📖 Próximos Pasos
+- DELETE /users/{id} → Eliminar usuario
 
-    Implementar autenticación con JWT
+### Departamentos (/departments)
 
-    Crear rutas CRUD para usuarios, salas y reservas
+- GET /departments/ → Listar departamentos
 
-    Aplicar validaciones de horarios en reservas
+- POST /departments/ → Crear departamento
 
-    Generar reportes básicos de uso de salas
+### Upload (/upload)
 
-## Elaborado por 👨‍💻 Ángel David Pinzón 
+- POST /upload/pdf → Subir y procesar un archivo PDF
