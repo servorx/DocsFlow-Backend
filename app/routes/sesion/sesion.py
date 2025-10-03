@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
-from datetime import timedelta, datetime
+from datetime import datetime
 from jose import jwt, JWTError
 
 from ...auth.validar_password import hash_password, verify_password
@@ -9,7 +9,6 @@ from ...models.users.user import UserCreate, User
 from ...models.models import LoginAttempt
 from ...core.database import get_session
 from ...auth.jwt_hand import create_access_token, SECRET_KEY, ALGORITHM
-import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
@@ -21,6 +20,7 @@ router = APIRouter(tags=["Auth"])
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_session)):
+    print("📩 Datos recibidos:", user.dict()) 
     existe = select(User).where(User.email == user.email)
     result = db.exec(existe).first()
     if result:
@@ -72,7 +72,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             db.commit()
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-    # Login exitoso, resetear intentos
+    # Login exitoso → resetear intentos
     attempt.attempts = 0
     attempt.is_blocked = False
     db.add(attempt)
@@ -80,7 +80,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     token = create_access_token(data={"sub": user.email, "role": user.role})
     return {"access_token": token, "token_type": "bearer"}
-
 
 
 @router.post("/reset-password")

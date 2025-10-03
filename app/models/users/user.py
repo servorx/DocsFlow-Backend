@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import validator
 
 
 class User(SQLModel, table=True):
@@ -10,15 +10,21 @@ class User(SQLModel, table=True):
     email: str
     # hacer que el password pueda recibir un hash de password
     password: str 
-    role: str = "operator"
+    role: str
     id_department: int
 
 class UserCreate(SQLModel):
     name: str
     email: str
     password: str
-    role: str = "operator"
+    role: str 
     id_department: int 
+
+    @validator("password")
+    def check_password_length(cls, v):
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("La contraseña no puede superar los 72 caracteres")
+        return v
 
 class UserRead(SQLModel):
     name: str

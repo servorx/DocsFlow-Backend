@@ -21,7 +21,7 @@ Este servicio está diseñado para conectarse con un frontend en **React + TypeS
 
 ### 1️⃣ Clonar el repositorio
 ```bash
-git clone https://github.com/tuusuario/DocsFlow-Backend.git
+git clone https://github.com/servorx/DocsFlow-Backend.git
 cd DocsFlow-Backend
 ```
 
@@ -36,21 +36,23 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4️⃣ LEvantar el servidor con uvicorn
+### 4️⃣ Activar XAMPP
+```bash
+sudo /opt/lampp/lampp start
+```
+
+### 5️⃣ Ejecutar el programa
 ```bash
 uvicorn app.main:app --reload
 ```
 
-### 5️⃣ Crear la base de datos
+### 6️⃣ Crear la base de datos
 ```bash
 mysql -u root -p
 # ejecutar el archivo docsFlowData.sql y docsFlowEstructura.sql
 ```
 
 ## 📂 Estructura del proyecto
-Generated on: 9/26/2025, 5:13:17 PM
-Root path: `/home/angel/Desktop/campusdev/proyectos/DocsFlow-Backend`
-
 ```
 ├── .git/ 🚫 (auto-hidden)
 ├── app/

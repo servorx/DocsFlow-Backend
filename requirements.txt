@@ -9,7 +9,7 @@ sqlmodel
 
 # Seguridad y autenticación
 python-jose[cryptography]
-passlib[bcrypt]
+passlib[argon2]
 
 # Validación de datos
 pydantic
