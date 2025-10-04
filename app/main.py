@@ -32,7 +32,7 @@ app.add_middleware(
 # Routers
 app.include_router(upload_router)
 app.include_router(sesion.router, prefix="/auth")
-app.include_router(forgot_router, prefix="/auth")
+app.include_router(forgot_router)
 app.include_router(user_router, prefix="/users", tags=["Users"])
 app.include_router(department_router, prefix="/departments", tags=["Departments"])
 
@@ -41,10 +41,6 @@ app.include_router(department_router, prefix="/departments", tags=["Departments"
 def health_check():
     return {"status": "ok"}
 
-
-# ================================
-# MANEJADORES DE ERRORES
-# ================================
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):

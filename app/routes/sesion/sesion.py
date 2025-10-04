@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 from datetime import datetime
 from jose import jwt, JWTError
+from datetime import timedelta
 
 from ...auth.validar_password import hash_password, verify_password
 from ...models.users.user import UserCreate, User
@@ -16,6 +17,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# expira en 30 minutos
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 router = APIRouter(tags=["Auth"])
 
 @router.post("/register")
@@ -44,7 +47,7 @@ def register(user: UserCreate, db: Session = Depends(get_session)):
 
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):    
     if not form_data.username or not form_data.password:
         raise HTTPException(status_code=400, detail="Username y password requeridos")
     user = db.exec(select(User).where(User.email == form_data.username)).first()
@@ -78,27 +81,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     db.add(attempt)
     db.commit()
 
-    token = create_access_token(data={"sub": user.email, "role": user.role})
-    return {"access_token": token, "token_type": "bearer"}
-
-
-@router.post("/reset-password")
-def reset_password(token: str, new_password: str, db: Session = Depends(get_session)):
-    try:
-        payload = jwt.decode(token, SECRET_KEY or "", algorithms=[ALGORITHM or "HS256"])
-        email: str = payload.get("sub")
-        if not email:
-            raise HTTPException(status_code=400, detail="Token inválido")
-    except JWTError:
-        raise HTTPException(status_code=400, detail="Token inválido o expirado")
-
-    user = db.exec(select(User).where(User.email == email)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-    user.password = hash_password(new_password)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    return {"msg": "Contraseña actualizada correctamente"}
+    token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    token = create_access_token(data={"sub": user.email, "role": user.role}, expires_delta=token_expires)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "role": user.role,
+        "expires_in": token_expires.total_seconds()
+    }

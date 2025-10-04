@@ -5,32 +5,24 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Form
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Session, select
-
+from fastapi import Request
 from app.utils.email import send_reset_email
 from app.models import User
 from app.models.forgot_password import ResetPasswordToken
 from app.core.database import get_session
 from app.auth.validar_password import hash_password
 
-# ================================
-# Configuración
-# ================================
 load_dotenv()
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
-
+BASE_URL_EMAIL = "http://localhost:5173"
 router = APIRouter()
 
-
-# ================================
-# Esquemas de entrada
-# ================================
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
-
-# ================================
-# Rutas
-# ================================
 @router.post("/forgot-password")
 async def forgot_password(
     request: ForgotPasswordRequest,
@@ -61,7 +53,7 @@ async def forgot_password(
 
     # Enviar correo
     try:
-        await send_reset_email(user.email, token_obj.token, BASE_URL)
+        await send_reset_email(user.email, token_obj.token, BASE_URL_EMAIL)
         print(f"[DEBUG] Correo enviado a {user.email}")
     except Exception as e:
         print(f"[ERROR] Error enviando correo: {e}")
@@ -71,11 +63,12 @@ async def forgot_password(
 
 
 @router.post("/reset-password")
-def reset_password(
-    token: str = Form(...),
-    new_password: str = Form(...),
+async def reset_password(
+    request: ResetPasswordRequest,
     session: Session = Depends(get_session)
 ):
+    token = request.token
+    new_password = request.new_password
     """Restablecer contraseña usando token"""
     # Buscar token en la base de datos
     statement = select(ResetPasswordToken).where(ResetPasswordToken.token == token)
