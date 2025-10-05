@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.routes.data_upload import upload_router
+from app.routes.data_upload import document_router
 from app.routes.sesion import sesion
 from app.routes.user.users import router as user_router
 from app.routes.department.departments import router as department_router
@@ -30,9 +30,9 @@ app.add_middleware(
 )
 
 # Routers
-app.include_router(upload_router)
+app.include_router(document_router , prefix="/documents", tags=["Documents"])
 app.include_router(sesion.router, prefix="/auth")
-app.include_router(forgot_router)
+app.include_router(forgot_router , prefix="/auth", tags=["Auth"])
 app.include_router(user_router, prefix="/users", tags=["Users"])
 app.include_router(department_router, prefix="/departments", tags=["Departments"])
 

@@ -1,73 +1,113 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
-import json
+from sqlmodel import Session, select
+from typing import List, Optional
 from ..auth.dependencias import get_current_user
-from ..utils.pdf_table_extractor import extract_tables_from_pdf
+from ..core.database import get_session
 from ..models.extrated_data import ExtratedData
 from ..models.key_data import KeyData
-from sqlmodel import Session
-from ..core.database import get_session
 
-upload_router = APIRouter()
+document_router = APIRouter()
 
 
-@upload_router.post("/upload/")
-async def upload_file(file: UploadFile = File(...), user: dict = Depends(get_current_user), session: Session = Depends(get_session)):
-    if not file:
-        raise HTTPException(status_code=400, detail="No se ha proporcionado ningún archivo")
+# ✅ 1️⃣ Obtener todos los documentos (tablas extraídas)
+@document_router.get("/", response_model=List[ExtratedData])
+def get_all_documents(
+    session: Session = Depends(get_session),
+    user: dict = Depends(get_current_user)
+):
+    department_id = user["department_id"]
+    documents = session.exec(
+        select(ExtratedData).where(ExtratedData.department_id == department_id)
+    ).all()
+
+    if not documents:
+        raise HTTPException(status_code=404, detail="No se encontraron documentos.")
     
-    # Validar que el archivo tenga nombre
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="El archivo debe tener un nombre válido")
+    return documents
+
+
+# ✅ 2️⃣ Obtener un documento por su ID
+@document_router.get("/{id_table}", response_model=ExtratedData)
+def get_document_by_id(
+    id_table: int,
+    session: Session = Depends(get_session),
+    user: dict = Depends(get_current_user)
+):
+    document = session.get(ExtratedData, id_table)
+    if not document or document.department_id != user["department_id"]:
+        raise HTTPException(status_code=404, detail="Documento no encontrado o no autorizado.")
+    return document
+
+
+# ✅ 3️⃣ Obtener todas las tablas (key-values) asociadas a un documento
+@document_router.get("/tables/{document_id}", response_model=List[KeyData])
+def get_tables_by_document_id(
+    document_id: int,
+    session: Session = Depends(get_session),
+    user: dict = Depends(get_current_user)
+):
+    document = session.get(ExtratedData, document_id)
+    if not document or document.department_id != user["department_id"]:
+        raise HTTPException(status_code=403, detail="No autorizado para ver este documento.")
     
-    # Validar tipo de archivo (solo PDFs por defecto)
-    allowed_extensions = ['.pdf']
-    if not any(file.filename.lower().endswith(ext) for ext in allowed_extensions):
-        raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF")
+    tables = session.exec(
+        select(KeyData).where(KeyData.table_id == document_id)
+    ).all()
     
-    try:
-        # Extraer tablas del PDF directamente desde el archivo subido
-        tables_data = extract_tables_from_pdf(file.file)
-
-        if not tables_data:
-            raise HTTPException(status_code=400, detail="El PDF no contiene tablas para procesar.")
-
-        department_id = user["department_id"]
-
-        saved_tables = []
-        for table in tables_data:
-            # Guardar estructura de tabla en ExtratedData
-            table_json = json.dumps(table)
-            extrated_data = ExtratedData(department_id=department_id, table_data=table_json)
-            session.add(extrated_data)
-            session.commit()
-            session.refresh(extrated_data)
-
-            table_id = extrated_data.id_table
-            assert table_id is not None
-
-            # Extraer datos clave: primera fila como headers, luego guardar cada celda como key-value con header como key
-            data_rows = table["data"]
-            if data_rows and len(data_rows) > 0:
-                headers = data_rows[0]
-                for i in range(1, len(data_rows)):
-                    row = data_rows[i]
-                    for j, cell in enumerate(row):
-                        if j < len(headers):
-                            key = str(headers[j]).strip() if headers[j] else f"col_{j}"
-                            value = str(cell).strip() if cell else ""
-                            key_data = KeyData(department_id=department_id, table_id=table_id, key=key, value=value)
-                            session.add(key_data)
-
-            session.commit()
-            saved_tables.append({"id_table": table_id, "page": table["page"], "table_index": table["table_index"]})
-
-    except Exception as e:
-        session.rollback()
-        raise HTTPException(status_code=500, detail=f"Error al procesar el PDF: {str(e)}")
+    if not tables:
+        raise HTTPException(status_code=404, detail="No hay tablas asociadas a este documento.")
     
-    return JSONResponse(content={
-        "message": "Archivo procesado exitosamente",
-        "filename": file.filename,
-        "saved_tables": saved_tables
-    })
+    return tables
+
+
+# ✅ 4️⃣ Buscar datos clave (KeyData) por palabra clave
+@document_router.get("/tables/search", response_model=List[KeyData])
+def search_key_data(
+    q: Optional[str] = Query(None, description="Texto de búsqueda en 'key' o 'value'"),
+    session: Session = Depends(get_session),
+    user: dict = Depends(get_current_user)
+):
+    if not q:
+        raise HTTPException(status_code=400, detail="Debe proporcionar un parámetro de búsqueda (q).")
+
+    results = session.exec(
+        select(KeyData)
+        .where(KeyData.department_id == user["department_id"])
+        .where(
+            (KeyData.key.ilike(f"%{q}%")) | 
+            (KeyData.value.ilike(f"%{q}%"))
+        )
+    ).all()
+
+    if not results:
+        raise HTTPException(status_code=404, detail="No se encontraron coincidencias.")
+    
+    return results
+
+
+# ✅ 5️⃣ Eliminar un documento y sus datos asociados
+@document_router.delete("/{id_table}")
+def delete_document(
+    id_table: int,
+    session: Session = Depends(get_session),
+    user: dict = Depends(get_current_user)
+):
+    document = session.get(ExtratedData, id_table)
+    if not document or document.department_id != user["department_id"]:
+        raise HTTPException(status_code=404, detail="Documento no encontrado o no autorizado.")
+
+    # Borrar las key_data relacionadas primero (para mantener integridad)
+    session.exec(
+        select(KeyData).where(KeyData.table_id == id_table)
+    ).all()
+    session.query(KeyData).filter(KeyData.table_id == id_table).delete()
+
+    # Luego eliminar el documento
+    session.delete(document)
+    session.commit()
+
+    return JSONResponse(
+        content={"message": f"Documento con ID {id_table} eliminado correctamente."},
+        status_code=200
+    )

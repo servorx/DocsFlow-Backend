@@ -22,7 +22,7 @@ conf = ConnectionConfig(
 async def send_reset_email(to_email: str, token: str, base_url: str = "http://localhost:5173"):
     subject = "Recuperación de contraseña"
     expiry = datetime.utcnow() + timedelta(minutes=15)
-    reset_link = f"{base_url}/reset-password?token={token}"
+    reset_link = f"{base_url}/auth/reset-password?token={token}"
 
     body = f"""
     Hola 👋,
