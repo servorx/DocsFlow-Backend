@@ -1,10 +1,94 @@
-INSERT INTO departments(name_department) VALUES
+INSERT INTO departments (name_department) VALUES
+('Recursos Humanos'),
 ('Finanzas'),
-('Compras'),
-('Talento Humano'),
-('Produccion'),
-('Ventas'),
-('Logistica'),
-('Tecnologia'),
+('Tecnología'),
 ('Marketing'),
-('Administracion');
+('Ventas'),
+('Logística'),
+('Atención al Cliente'),
+('Legal'),
+('Compras'),
+('Dirección General');
+
+INSERT INTO users (name, email, password, role, id_department) VALUES
+('Ana Torres', 'ana.torres@empresa.com', 'hashed_pwd_1', 'admin', 1),
+('Carlos Pérez', 'carlos.perez@empresa.com', 'hashed_pwd_2', 'operator', 1),
+('Marta Gómez', 'marta.gomez@empresa.com', 'hashed_pwd_3', 'operator', 2),
+('Julián Castro', 'julian.castro@empresa.com', 'hashed_pwd_4', 'operator', 2),
+('Laura Rivas', 'laura.rivas@empresa.com', 'hashed_pwd_5', 'operator', 3),
+('Andrés Montoya', 'andres.montoya@empresa.com', 'hashed_pwd_6', 'admin', 3),
+('Valentina Duarte', 'valentina.duarte@empresa.com', 'hashed_pwd_7', 'operator', 4),
+('Santiago Vélez', 'santiago.velez@empresa.com', 'hashed_pwd_8', 'operator', 4),
+('Camila Orozco', 'camila.orozco@empresa.com', 'hashed_pwd_9', 'operator', 5),
+('Ricardo López', 'ricardo.lopez@empresa.com', 'hashed_pwd_10', 'admin', 5),
+('Luisa Mora', 'luisa.mora@empresa.com', 'hashed_pwd_11', 'operator', 6),
+('Felipe Arango', 'felipe.arango@empresa.com', 'hashed_pwd_12', 'operator', 6),
+('Sara Gil', 'sara.gil@empresa.com', 'hashed_pwd_13', 'operator', 7),
+('David Pardo', 'david.pardo@empresa.com', 'hashed_pwd_14', 'operator', 7),
+('Lucía Herrera', 'lucia.herrera@empresa.com', 'hashed_pwd_15', 'operator', 8),
+('Jorge Rueda', 'jorge.rueda@empresa.com', 'hashed_pwd_16', 'operator', 8),
+('Mariana Díaz', 'mariana.diaz@empresa.com', 'hashed_pwd_17', 'operator', 9),
+('Juan Ramírez', 'juan.ramirez@empresa.com', 'hashed_pwd_18', 'operator', 9),
+('Elena Correa', 'elena.correa@empresa.com', 'hashed_pwd_19', 'admin', 10),
+('Tomás Vargas', 'tomas.vargas@empresa.com', 'hashed_pwd_20', 'operator', 10);
+
+INSERT INTO extrated_data (department_id, table_data) VALUES
+(1, '{"employees": [{"name": "Juan", "position": "Analista"}, {"name": "Carla", "position": "Reclutadora"}]}'),
+(2, '{"budgets": [{"month": "Enero", "amount": 1200000}, {"month": "Febrero", "amount": 950000}]}'),
+(3, '{"servers": [{"name": "srv-db-01", "status": "active"}, {"name": "srv-api-02", "status": "maintenance"}]}'),
+(4, '{"campaigns": [{"name": "Lanzamiento Q1", "reach": "25k"}, {"name": "Anuncio TV", "reach": "80k"}]}'),
+(5, '{"sales": [{"region": "Norte", "total": 52000}, {"region": "Sur", "total": 49000}]}'),
+(6, '{"routes": [{"origin": "Bodega 1", "destination": "Sucursal Cali"}, {"origin": "Bodega 2", "destination": "Sucursal Bogotá"}]}'),
+(7, '{"tickets": [{"customer": "Pedro", "issue": "Retraso de pedido"}, {"customer": "María", "issue": "Producto defectuoso"}]}'),
+(8, '{"cases": [{"client": "ACME Ltd.", "status": "Abierto"}, {"client": "Industrias Sol", "status": "Cerrado"}]}'),
+(9, '{"orders": [{"supplier": "TecnoParts", "value": 15000}, {"supplier": "OfiCenter", "value": 8700}]}'),
+(10, '{"projects": [{"name": "Transformación Digital", "progress": "80%"}, {"name": "Auditoría Interna", "progress": "45%"}]}');
+
+INSERT INTO key_data (department_id, table_id, `key`, `value`) VALUES
+(1, 1, 'total_employees', '2'),
+(1, 1, 'main_recruiter', 'Carla'),
+(2, 2, 'highest_budget_month', 'Enero'),
+(2, 2, 'average_budget', '1075000'),
+(3, 3, 'active_servers', '1'),
+(3, 3, 'total_servers', '2'),
+(4, 4, 'most_successful_campaign', 'Anuncio TV'),
+(4, 4, 'total_campaigns', '2'),
+(5, 5, 'north_sales', '52000'),
+(5, 5, 'total_sales', '101000'),
+(6, 6, 'routes_count', '2'),
+(7, 7, 'open_tickets', '2'),
+(8, 8, 'open_cases', '1'),
+(8, 8, 'closed_cases', '1'),
+(9, 9, 'total_orders', '2'),
+(9, 9, 'avg_order_value', '11850'),
+(10, 10, 'active_projects', '2'),
+(10, 10, 'overall_progress', '62.5%');
+
+INSERT INTO reset_password_tokens (user_id, token) VALUES
+(3, 'token_a1b2c3'),
+(5, 'token_d4e5f6'),
+(10, 'token_g7h8i9'),
+(14, 'token_j1k2l3'),
+(18, 'token_m4n5o6');
+
+INSERT INTO login_attempts (email, attempts, is_blocked, last_attempt) VALUES
+('ana.torres@empresa.com', 1, false, '2025-10-04 09:15:00'),
+('carlos.perez@empresa.com', 2, false, '2025-10-04 10:05:00'),
+('marta.gomez@empresa.com', 3, true, '2025-10-04 11:20:00'),
+('julian.castro@empresa.com', 1, false, '2025-10-04 08:45:00'),
+('laura.rivas@empresa.com', 0, false, '2025-10-03 16:00:00'),
+('andres.montoya@empresa.com', 4, true, '2025-10-04 12:35:00'),
+('valentina.duarte@empresa.com', 2, false, '2025-10-04 07:20:00'),
+('santiago.velez@empresa.com', 1, false, '2025-10-04 08:10:00'),
+('camila.orozco@empresa.com', 5, true, '2025-10-04 09:55:00'),
+('ricardo.lopez@empresa.com', 1, false, '2025-10-04 14:25:00'),
+('luisa.mora@empresa.com', 3, false, '2025-10-04 15:40:00'),
+('felipe.arango@empresa.com', 0, false, '2025-10-03 13:10:00'),
+('sara.gil@empresa.com', 2, false, '2025-10-04 17:50:00'),
+('david.pardo@empresa.com', 3, true, '2025-10-04 19:15:00'),
+('lucia.herrera@empresa.com', 1, false, '2025-10-03 21:05:00'),
+('jorge.rueda@empresa.com', 4, true, '2025-10-04 22:30:00'),
+('mariana.diaz@empresa.com', 2, false, '2025-10-04 23:10:00'),
+('juan.ramirez@empresa.com', 0, false, '2025-10-03 12:00:00'),
+('elena.correa@empresa.com', 1, false, '2025-10-04 08:00:00'),
+('tomas.vargas@empresa.com', 2, false, '2025-10-04 09:00:00');

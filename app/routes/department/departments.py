@@ -17,6 +17,6 @@ departments_data = [
     {"id_department": 9, "name_department": "Administración"},
 ]
 
-@router.get("/departments", response_model=List[Department])
+@router.get("/all", response_model=List[Department])
 def get_departments():
     return departments_data
